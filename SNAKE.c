@@ -627,7 +627,7 @@ void update()
     SDL_Delay(pas);
     courant=NULL;
 }
-SDL_Rect part_rect,tail_rect,Ras_rect,food_rect;
+SDL_Rect part_rect,tail_rect,head_rect,food_rect;
 void render()
 {
     SDL_RenderClear(renderer);
@@ -667,13 +667,13 @@ void render()
 
     create_score();
     
-    Ras_rect.x = (int)HeadSnake->measurements.x;
-    Ras_rect.y = (int)HeadSnake->measurements.y;
-    Ras_rect.w = (int)HeadSnake->measurements.width;
-    Ras_rect.h = (int)HeadSnake->measurements.height;
+    head_rect.x = (int)HeadSnake->measurements.x;
+    head_rect.y = (int)HeadSnake->measurements.y;
+    head_rect.w = (int)HeadSnake->measurements.width;
+    head_rect.h = (int)HeadSnake->measurements.height;
 
     head_icon(HeadSnake->measurements.vel_x, HeadSnake->measurements.vel_y);
-    SDL_RenderCopy(renderer, head_tex, NULL, &Ras_rect);
+    SDL_RenderCopy(renderer, head_tex, NULL, &head_rect);
     SDL_DestroyTexture(head_tex);
     
     food_rect.x = (int)food.x;
