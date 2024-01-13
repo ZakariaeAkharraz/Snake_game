@@ -65,10 +65,10 @@ SNAKE *createPart()
     part->next = NULL;
     return (part);
 }
-SNAKE *RasLef3a, *TailLef3a;
+SNAKE *HeadSnake, *TailSnake;
 
-SDL_Surface *ras_surf, *body_surf, *tail_surf;
-SDL_Texture *ras_tex, *body_tex, *tail_tex;
+SDL_Surface *head_surf, *body_surf, *tail_surf;
+SDL_Texture *head_tex, *body_tex, *tail_tex;
 int highscore;
 FILE *pf;
 int high_score(int high){
@@ -88,10 +88,9 @@ int high_score(int high){
     int highscore;
     pf=fopen("HighScore.txt","w");
     for (int i = 0; i < 2; i++)
-    {   //printf("\nsom : %d",level);
-        //printf("\nhigh : %d",high);
+    {  
         if (i==(level-1) && highscores[i]<high)
-        {   //printf("\nlinef: %d",high);
+        {   
             highscores[i]=high;
 
         }
@@ -101,7 +100,7 @@ int high_score(int high){
     high=highscores[level-1];
     fclose(pf);
     pf=NULL;
-    //printf("\nnew: %d",high);
+    
     return high;
 }
 SDL_Surface *start_surf;
@@ -146,27 +145,27 @@ void head_icon(float velx, float vely)
 {
     if (velx < 0)
     {
-        ras_surf = IMG_Load("Graphics\\head_left.png");
+        head_surf = IMG_Load("Graphics\\head_left.png");
     }
     else if (velx > 0)
     {
-        ras_surf = IMG_Load("Graphics\\head_right.png");
+        head_surf = IMG_Load("Graphics\\head_right.png");
     }
     else if (vely < 0)
     {
-        ras_surf = IMG_Load("Graphics\\head_up.png");
+        head_surf = IMG_Load("Graphics\\head_up.png");
     }
     else if (vely > 0)
     {
-        ras_surf = IMG_Load("Graphics\\head_down.png");
+        head_surf = IMG_Load("Graphics\\head_down.png");
     }
     else
     {
-        ras_surf = IMG_Load("Graphics\\head_right.png");
+        head_surf = IMG_Load("Graphics\\head_right.png");
     }
 
-    ras_tex = SDL_CreateTextureFromSurface(renderer, ras_surf);
-    SDL_FreeSurface(ras_surf);
+    head_tex = SDL_CreateTextureFromSurface(renderer, head_surf);
+    SDL_FreeSurface(head_surf);
 }
 
 void body_icon(SNAKE *courant)
@@ -174,22 +173,18 @@ void body_icon(SNAKE *courant)
     if ((courant->next->measurements.vel_y < 0 && courant->measurements.vel_x < 0) || (courant->next->measurements.vel_x > 0 && courant->measurements.vel_y > 0))
     {
         body_surf = IMG_Load("Graphics\\body_topright.png");
-        // printf("\ncourant.next.x: %f  courant.next.y: %f",courant->measurements.vel_x,courant->measurements.vel_y);
     }
     else if ((courant->next->measurements.vel_y < 0 && courant->measurements.vel_x > 0) || (courant->next->measurements.vel_x < 0 && courant->measurements.vel_y > 0))
     {
         body_surf = IMG_Load("Graphics\\body_topleft.png");
-        // printf("\ncourant.next.x: %f  courant.next.y: %f",courant->measurements.vel_x,courant->measurements.vel_y);
     }
     else if ((courant->next->measurements.vel_y > 0 && courant->measurements.vel_x < 0) || (courant->next->measurements.vel_x > 0 && courant->measurements.vel_y < 0))
     {
         body_surf = IMG_Load("Graphics\\body_bottomright.png");
-        // printf("\ncourant.next.x: %f  courant.next.y: %f",courant->measurements.vel_x,courant->measurements.vel_y);
     }
     else if ((courant->next->measurements.vel_y > 0 && courant->measurements.vel_x > 0) || (courant->next->measurements.vel_x < 0 && courant->measurements.vel_y < 0))
     {
         body_surf = IMG_Load("Graphics\\body_bottomleft.png");
-        // printf("\ncourant.next.x: %f  courant.next.y: %f",courant->measurements.vel_x,courant->measurements.vel_y);
     }
     else
     {
@@ -200,7 +195,6 @@ void body_icon(SNAKE *courant)
         else if (courant->measurements.vel_x != 0)
         {
             body_surf = IMG_Load("Graphics\\body_horizontal.png");
-            // printf("\ncourant.next.x: %f  courant.next.y: %f",courant->measurements.vel_x,courant->measurements.vel_y);
         }
     }
     body_tex = SDL_CreateTextureFromSurface(renderer, body_surf);
@@ -285,13 +279,10 @@ void Game_over()
 
 void create_score()
 {
-    // printf("\n1");
     font = TTF_OpenFont("Retro Gaming.ttf", 50);
     char score[20];
-
-    // printf("\n%d",li->nef);
     sprintf(score, "SCORE: %d", li->nef-2);
-    // printf("\n2 %s",score);
+
     SDL_Color color = {255, 255, 255};
     score_surf = TTF_RenderText_Solid(font, score, color);
     score_tex = SDL_CreateTextureFromSurface(renderer, score_surf);
@@ -325,7 +316,7 @@ int initialize_window(void)
         0);
     if (!window)
     {
-        fprintf(stderr, "Error creating SDL Window.\n");
+        printf("Error creating SDL Window.\n");
         return false;
     }
     Uint32 chit = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
@@ -412,14 +403,12 @@ void process_input(void)
                 }
                 break;
             case SDL_SCANCODE_PAGEUP:
-                printf("cliked");
                 if (pas <= 80)
                 {
                     pas += 10;
                 }
                 break;
             case SDL_SCANCODE_PAGEDOWN:
-                printf("cliked");
                 if (pas >= 40)
                 {
                     pas -= 10;
@@ -487,51 +476,18 @@ void process_input(void)
         }
     }
 }
-void obstacl_accident()
-{
-    float rasx = RasLef3a->measurements.x;
-    float rasy = RasLef3a->measurements.y;
-
-    // CADRE-------CADRE--------CADRE
-    if (((rasx + snake_width >= 760 || rasx < 40) && (rasy < 320 || rasy > 400)) || rasy <= 40 || rasy + snake_width >= 560)
-    {
-        printf("\nras.x: %f ras.y: %f", RasLef3a->measurements.x, RasLef3a->measurements.y);
-        game_is_running = false;
-        printf("\n-----------GAME OVER----------\n");
-        SDL_Delay(1000);
-    }
-    //*************************************
-    //----LETTER T --LETTER T ----LETTER T
-    else if (((rasx + snake_width >= 360 && rasx <= 480) && (rasy + snake_width >= 240 & rasy <= 280)) || (rasy + snake_width >= 280 & rasy <= 360) & (rasx + snake_width >= 400 & rasx <= 440))
-    {
-        printf("\nras.x: %f ras.y: %f", RasLef3a->measurements.x, RasLef3a->measurements.y);
-        game_is_running = false;
-        printf("\n-----------GAME OVER----------\n");
-        SDL_Delay(1000);
-    }
-    //************************************
-    else if (((rasy + snake_width > 360 & rasy < 480) & (rasx + snake_width > 520 & rasx < 560)) || (((rasy + snake_width > 440 & rasy < 480)) & (rasx + snake_width > 440 && rasx < 560)))
-    {
-        printf("\nras.x: %f ras.y: %f", RasLef3a->measurements.x, RasLef3a->measurements.y);
-        game_is_running = false;
-        printf("\n-----------GAME OVER----------\n");
-        SDL_Delay(1000);
-    }
-}
 int check_obstacles(float x, float y,int lev)
-{ // printf("\nx: %f y: %f",x,y);
+{ 
     if (lev==1)
     {
         if (((x + snake_width > 760 || x < 40) && (y < 320 || y + snake_width > 400)) || y < 40 || y + snake_width > 560)
     {
-        //printf("\nx: %f y: %f", x, y);
         return 0;
     }
     // TTTT obstacle
 
     else if ((x + snake_width > 360 && x < 480) && (y >= 240 && y < 280) || ((y >= 280 && y < 360) && (x + snake_width > 400 && x < 440)))
     {
-        //printf("\nx: %f y: %f", x, y);
         return 0;
     }
     else if (((y + snake_width > 360 & y < 480) & (x + snake_width > 520 & x < 560)) || (((y + snake_width > 440 & y < 480)) & (x + snake_width > 440 && x < 540)))
@@ -543,27 +499,22 @@ int check_obstacles(float x, float y,int lev)
     {
         if (((x >= 760 || x < 40) && (y < 320 || y + snake_width > 400)) || y < 40 || y + snake_width > 560)
     {
-        //printf("\nsnakex: %f snakey: %f", x, y);
         return 0;
     }
         else if (((x + snake_width > 120 && x < 280) && (y >= 120 && y < 160)) || ((y >= 120 && y < 240) && (x + snake_width > 120 && x < 160)))
     {
-        //printf("\nx: %f y: %f", x, y);
         return 0;
     }
         else if (((x + snake_width > 80 && x < 240) && (y >= 280 && y < 320)) || ((y >= 200 && y < 300) && (x + snake_width > 200 && x < 240)))
     {
-        //printf("\nx: %f y: %f", x, y);
         return 0;
     }
         else if (((x + snake_width > 400 && x < 680) && (y >= 240 && y < 280)) || ((y >= 160 && y < 320) && (x + snake_width > 640 && x < 680)))
     {
-        //printf("\nx: %f y: %f", x, y);
         return 0;
     }
         else if (((x + snake_width > 360 && x < 600) && (y >= 360 && y < 400)) || ((y >= 320 && y < 520) && (x + snake_width > 400 && x < 440)))
     {
-        //printf("\nx: %f y: %f", x, y);
         return 0;
     }
     }
@@ -578,39 +529,38 @@ void setup()
     vel_y = 0;
     
     
-    RasLef3a = createPart();
-    TailLef3a = createPart();
+    HeadSnake = createPart();
+    TailSnake = createPart();
     li = CreerListe();
 
-    RasLef3a->measurements.height = snake_width;
+    HeadSnake->measurements.height = snake_width;
 
-    RasLef3a->measurements.width = snake_width;
+    HeadSnake->measurements.width = snake_width;
 
-    TailLef3a->measurements.height = snake_width;
+    TailSnake->measurements.height = snake_width;
 
-    TailLef3a->measurements.width = snake_width;
+    TailSnake->measurements.width = snake_width;
 
-    RasLef3a->measurements.x = 160;
-    RasLef3a->measurements.y = 100;
-    RasLef3a->measurements.vel_x = 0;
-    RasLef3a->measurements.vel_y = 0;
-    RasLef3a->next = NULL;
-    ras_surf = IMG_Load("Graphics\\head_right.png");
-    ras_tex = SDL_CreateTextureFromSurface(renderer, ras_surf);
-    SDL_FreeSurface(ras_surf);
+    HeadSnake->measurements.x = 160;
+    HeadSnake->measurements.y = 100;
+    HeadSnake->measurements.vel_x = 0;
+    HeadSnake->measurements.vel_y = 0;
+    HeadSnake->next = NULL;
+    head_surf = IMG_Load("Graphics\\head_right.png");
+    head_tex = SDL_CreateTextureFromSurface(renderer, head_surf);
+    SDL_FreeSurface(head_surf);
 
-    TailLef3a->measurements.x = 140;
-    TailLef3a->measurements.y = 100;
-    TailLef3a->measurements.vel_x = 0;
-    TailLef3a->measurements.vel_y = 0;
-    TailLef3a->next = RasLef3a;
+    TailSnake->measurements.x = 140;
+    TailSnake->measurements.y = 100;
+    TailSnake->measurements.vel_x = 0;
+    TailSnake->measurements.vel_y = 0;
+    TailSnake->next = HeadSnake;
     tail_surf = IMG_Load("Graphics\\tail_left.png");
     tail_tex = SDL_CreateTextureFromSurface(renderer, tail_surf);
     SDL_FreeSurface(tail_surf);
 
-    li->head_snake = RasLef3a;
-    // TailLef3a->next = li->tail;
-    li->tail = TailLef3a;
+    li->head_snake = HeadSnake;
+    li->tail = TailSnake;
     li->nef = 2;
     food.height = 20;
     food.width = 20;
@@ -618,14 +568,12 @@ void setup()
     {
         food.x = (rand() % win_width / 20) * 20;
         food.y = (rand() % win_height / 20) * 20;
-        //printf("\nfood__level:%d",level);
     } while (check_obstacles(food.x, food.y,level) == 0 || (food.x==160 && food.y==100));
-    //printf("\nfood.x: %f  food.y: %f",food.x, food.y);
 }       
 
 void generate_food()
 {   
-    if ((abs(food.x - RasLef3a->measurements.x) < food.width) && (abs(food.y - RasLef3a->measurements.y) < food.height))
+    if ((abs(food.x - HeadSnake->measurements.x) < food.width) && (abs(food.y - HeadSnake->measurements.y) < food.height))
     {   
         do
         {
@@ -644,8 +592,6 @@ void generate_food()
         part->next = li->tail->next;
         li->tail->next = part;
         li->nef++;
-        //printf("\nnef: %d", li->nef);
-        //  assing_measurs_to_part(part);
     }
 }
 SNAKE *courant;
@@ -655,46 +601,35 @@ void update()
 
     
     courant = li->tail;
-    if (TailLef3a->next->next == NULL && vel_x == 0 && vel_y == 0)
+    if (TailSnake->next->next == NULL && vel_x == 0 && vel_y == 0)
     {
     }
     else
     {
-        TailLef3a->measurements.x = TailLef3a->next->measurements.x;
-        TailLef3a->measurements.y = TailLef3a->next->measurements.y;
-        TailLef3a->measurements.vel_x = TailLef3a->next->measurements.vel_x;
-        TailLef3a->measurements.vel_y = TailLef3a->next->measurements.vel_y;
+        TailSnake->measurements.x = TailSnake->next->measurements.x;
+        TailSnake->measurements.y = TailSnake->next->measurements.y;
+        TailSnake->measurements.vel_x = TailSnake->next->measurements.vel_x;
+        TailSnake->measurements.vel_y = TailSnake->next->measurements.vel_y;
     }
 
     while (courant->next != NULL && li->nef > 2)
-    { // printf("1111");
+    { 
         courant->measurements.x = courant->next->measurements.x;
-        // printf("courant.x: %f \n", courant->next->measurements.x);
         courant->measurements.y = courant->next->measurements.y;
-        // printf("courant.y: %f \n", courant->next->measurements.y);
         courant->measurements.vel_x = courant->next->measurements.vel_x;
-        // printf("courant.vel_x: %f \n", courant->next->measurements.vel_x);
         courant->measurements.vel_y = courant->next->measurements.vel_y;
-        // printf("courant.ve_y: %f \n", courant->next->measurements.vel_y);
         courant = courant->next;
     }
-    RasLef3a->measurements.vel_x = vel_x;
-    // printf("\nvel_x: %f", RasLef3a->measurements.vel_x);
-    RasLef3a->measurements.vel_y = vel_y;
-    // printf("\nvel_y: %f", RasLef3a->measurements.vel_y);
-    RasLef3a->measurements.x += RasLef3a->measurements.vel_x * 20;
-    RasLef3a->measurements.y += RasLef3a->measurements.vel_y * 20;
+    HeadSnake->measurements.vel_x = vel_x;
+    HeadSnake->measurements.vel_y = vel_y;
+    HeadSnake->measurements.x += HeadSnake->measurements.vel_x * 20;
+    HeadSnake->measurements.y += HeadSnake->measurements.vel_y * 20;
     SDL_Delay(pas);
     courant=NULL;
-    
-    //  printf("\nx: %f", RasLef3a->measurements.x);
-    //  printf("\ny: %f", RasLef3a->measurements.y);
 }
 SDL_Rect part_rect,tail_rect,Ras_rect,food_rect;
 void render()
 {
-
-    // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
     
     SDL_RenderCopy(renderer, bg_tex, NULL, NULL);
@@ -708,13 +643,11 @@ void render()
         courant = li->tail->next;
 
         while (courant->next != NULL)
-        { // printf("\npos: %d",pos);
+        { 
             part_rect.x = (int)courant->measurements.x;
             part_rect.y = (int)courant->measurements.y;
             part_rect.w = (int)courant->measurements.width;
             part_rect.h = (int)courant->measurements.height;
-            //SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-            // SDL_RenderFillRect(renderer, &part_rect);
             body_icon(courant);
             SDL_RenderCopy(renderer, body_tex, NULL, &part_rect);
             SDL_DestroyTexture(body_tex);
@@ -724,27 +657,24 @@ void render()
         courant=NULL;
     }
 
-    tail_icon(TailLef3a->next->measurements.vel_x, TailLef3a->next->measurements.vel_y);
-    tail_rect.x = (int)TailLef3a->measurements.x;
-    tail_rect.y = (int)TailLef3a->measurements.y;
-    tail_rect.w = (int)TailLef3a->measurements.width;
-    tail_rect.h = (int)TailLef3a->measurements.height;
+    tail_icon(TailSnake->next->measurements.vel_x, TailSnake->next->measurements.vel_y);
+    tail_rect.x = (int)TailSnake->measurements.x;
+    tail_rect.y = (int)TailSnake->measurements.y;
+    tail_rect.w = (int)TailSnake->measurements.width;
+    tail_rect.h = (int)TailSnake->measurements.height;
     SDL_RenderCopy(renderer, tail_tex, NULL, &tail_rect);
     SDL_DestroyTexture(tail_tex);
 
     create_score();
     
-    Ras_rect.x = (int)RasLef3a->measurements.x;
-    Ras_rect.y = (int)RasLef3a->measurements.y;
-    Ras_rect.w = (int)RasLef3a->measurements.width;
-    Ras_rect.h = (int)RasLef3a->measurements.height;
+    Ras_rect.x = (int)HeadSnake->measurements.x;
+    Ras_rect.y = (int)HeadSnake->measurements.y;
+    Ras_rect.w = (int)HeadSnake->measurements.width;
+    Ras_rect.h = (int)HeadSnake->measurements.height;
 
-    // SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-    // SDL_RenderFillRect(renderer, &Ras_rect);
-
-    head_icon(RasLef3a->measurements.vel_x, RasLef3a->measurements.vel_y);
-    SDL_RenderCopy(renderer, ras_tex, NULL, &Ras_rect);
-    SDL_DestroyTexture(ras_tex);
+    head_icon(HeadSnake->measurements.vel_x, HeadSnake->measurements.vel_y);
+    SDL_RenderCopy(renderer, head_tex, NULL, &Ras_rect);
+    SDL_DestroyTexture(head_tex);
     
     food_rect.x = (int)food.x;
             food_rect.y = (int)food.y;
@@ -758,7 +688,7 @@ void render()
 }
 
 void destroy_window(void)
-{   SDL_DestroyTexture(ras_tex);
+{   SDL_DestroyTexture(head_tex);
     SDL_DestroyTexture(tail_tex);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
@@ -772,46 +702,37 @@ void self_accident()
     if (li->nef >= 5)
     {
         parts = li->tail->next;
-        // printf("\n-----------------------begin--------------\n");
         while (parts->next != NULL && li->nef - pos >= 4)
         {
-            float dist_x = abs(parts->measurements.x - RasLef3a->measurements.x);
-            float dist_y = abs(parts->measurements.y - RasLef3a->measurements.y);
+            float dist_x = abs(parts->measurements.x - HeadSnake->measurements.x);
+            float dist_y = abs(parts->measurements.y - HeadSnake->measurements.y);
 
             float pytagor = sqrt(dist_x * dist_x + dist_y * dist_y);
-            // printf("\nras.x: %f ras.y: %f\n",RasLef3a->measurements.x,RasLef3a->measurements.y);
-            // printf("\nposition : %d courant.x: %f courant.y: %f  pytagor: %f", li->nef - pos,courante->measurements.x,courante->measurements.y ,pytagor);
-            // printf("\n");
             if (pytagor < 10)
             {   setup();
                 appear = 1;
                 game_state = 2;
-                printf("\n-----------GAME OVER----------\n");
                 Game_over();
 
                 break;
             }
-
-            // printf("\n diff.x: %f", abs(courant->measurements.x - RasLef3a->measurements.x));
-            // printf("\n diff.x: %f", abs(courant->measurements.y - RasLef3a->measurements.y));
             pos++;
             parts = parts->next;
         }
         parts=NULL;
-        // printf("-----------------------eeeeeennnnndddd---------------");
     }
      
 }
 void freerun()
 {
-    if (RasLef3a->measurements.y+snake_width > 600)
-        RasLef3a->measurements.y = 0;
-    else if (RasLef3a->measurements.y < 0)
-        RasLef3a->measurements.y = 600;
-    else if (RasLef3a->measurements.x+snake_width > 800)
-        RasLef3a->measurements.x = 0;
-    else if (RasLef3a->measurements.x < 0)
-        RasLef3a->measurements.x = 800;
+    if (HeadSnake->measurements.y+snake_width > 600)
+        HeadSnake->measurements.y = 0;
+    else if (HeadSnake->measurements.y < 0)
+        HeadSnake->measurements.y = 600;
+    else if (HeadSnake->measurements.x+snake_width > 800)
+        HeadSnake->measurements.x = 0;
+    else if (HeadSnake->measurements.x < 0)
+        HeadSnake->measurements.x = 800;
 }
     
 int main(int argc, char *args[])
@@ -819,14 +740,12 @@ int main(int argc, char *args[])
     game_state = 3;
     game_is_running = initialize_window();
     
-    
-
     setup();
     startup();
     
     while (game_is_running)
     {
-        
+    
         process_input();
         //*****start the game******
         if (game_state==3)
@@ -845,11 +764,9 @@ int main(int argc, char *args[])
             continue;
         }
 
-        //printf("\n2");
         self_accident();
         update();
-        //printf("\n3");
-        if (check_obstacles(RasLef3a->measurements.x, RasLef3a->measurements.y,level) == 0)
+        if (check_obstacles(HeadSnake->measurements.x, HeadSnake->measurements.y,level) == 0)
         {
            
             highscore=li->nef-2;
@@ -863,9 +780,7 @@ int main(int argc, char *args[])
             highscore=high_score(highscore);
             
             Game_over();
-            // SDL_Delay(2000);
             continue;
-            // goto begin;
         }
         
     
