@@ -425,15 +425,6 @@ void process_input(void)
                     pas -= 10;
                 }
                 break;
-            case SDL_SCANCODE_1:
-                level=1;
-                break;
-            case SDL_SCANCODE_2:
-                level=2;
-                break;
-            case SDL_SCANCODE_3:
-                printf("\n test");
-                break;
             case SDL_SCANCODE_SPACE:
                 game_state = 1;
                 pause();
