@@ -351,8 +351,8 @@ void pause()
     pause_surf = TTF_RenderText_Solid(font, pause, color);
     pause_tex = SDL_CreateTextureFromSurface(renderer, pause_surf);
     SDL_FreeSurface(pause_surf);
-    SDL_Rect pause_rect = {340,
-                           200,
+    SDL_Rect pause_rect = {(win_width-220)/2,
+                           (win_height-150)/2,
                            220,
                            150};
     SDL_RenderCopy(renderer, pause_tex, NULL, &pause_rect);
